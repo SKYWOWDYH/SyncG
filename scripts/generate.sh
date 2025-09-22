@@ -1,0 +1,1 @@
+./blender /syncG/blender_project/fakemeter_oil_new.blend --background --python /syncG/scripts/scripts_clean.py
