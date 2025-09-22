@@ -1,6 +1,6 @@
 # SyncG
 
-SyncG is a tool designed for generating synthetic datasets. This repository provides both pre-built datasets and the original scripts to generate your own customized data.
+SyncG is a tool designed for generating synthetic analogy gauge datasets. This repository provides both pre-built datasets and the original scripts to generate your own customized data.
 
 ## 💾 Pre-built Dataset
 
