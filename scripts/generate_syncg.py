@@ -178,13 +178,13 @@ def truncated_normal_rejection(start, end, mean, std): # generate from 0.3-0.8
         if start <= value <= end:
             return value
 
-def create_fakemeter(pointer_rotate_degree = 200, scale_factor = 1.9, text_offset = 0.35, meter_radius = 1, 
-                    dial_factor = 0.85, small_stuff_height = 0.001,
-                    start_value = 25, small_interval = 3, long_num = 12, 
-                    long_interval_degree =25,long_interval_value = 40, text_interval = 2, text_size = 0.15,
-                    long_keduxian_len = 0.12, short_keduxian_len = 0.06,is_circle_outside = False, img_output_format='PNG',
-                    width=3840,height=2160,use_gpu=[0,1,2,3,4,5,6,7],keep_straight=False, inverted_color=False,point_set=None,
-                    img_output_path=None,project_root=None):
+def sync_gauge(pointer_rotate_degree = 200, scale_factor = 1.9, text_offset = 0.35, meter_radius = 1, 
+                dial_factor = 0.85, small_stuff_height = 0.001,
+                start_value = 25, small_interval = 3, long_num = 12, 
+                long_interval_degree =25,long_interval_value = 40, text_interval = 2, text_size = 0.15,
+                long_keduxian_len = 0.12, short_keduxian_len = 0.06,is_circle_outside = False, img_output_format='PNG',
+                width=3840,height=2160,use_gpu=[0,1,2,3,4,5,6,7],keep_straight=False, inverted_color=False,point_set=None,
+                img_output_path=None,project_root=None):
     
     remove_things_from_collection(collection_name="small_stuff") # remove the keduxian and text in the small_stuff collection
     empty = bpy.data.objects.get('Empty') # guide the text orientation
@@ -927,7 +927,7 @@ for i in range(start_seed, end_seed+1):
                                                                 save_name=f'sync_{i}',width=width,height=height,
                                                                 use_gpu=use_gpu)
 
-    create_fakemeter(**dial_data_parameter,**dial_model_parameter,project_root=project_root)
+    sync_gauge(**dial_data_parameter,**dial_model_parameter,project_root=project_root)
     output_json(**dial_data_parameter,
                 seed=seed_num,width=dial_model_parameter['width'],scene_number=scene_file,
                 height=dial_model_parameter['height'],
