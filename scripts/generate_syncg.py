@@ -183,7 +183,7 @@ def sync_gauge(pointer_rotate_degree = 200, scale_factor = 1.9, text_offset = 0.
                 start_value = 25, small_interval = 3, long_num = 12, 
                 long_interval_degree =25,long_interval_value = 40, text_interval = 2, text_size = 0.15,
                 long_keduxian_len = 0.12, short_keduxian_len = 0.06,is_circle_outside = False, img_output_format='PNG',
-                width=3840,height=2160,use_gpu=[0,1,2,3,4,5,6,7],keep_straight=False, inverted_color=False,point_set=None,
+                width=3840,height=2160,use_gpu=[0,1,2,3,4,5,6,7],keep_straight=False, inverted_color=False,
                 img_output_path=None,project_root=None):
     
     remove_things_from_collection(collection_name="small_stuff") # remove the keduxian and text in the small_stuff collection
@@ -240,12 +240,12 @@ def sync_gauge(pointer_rotate_degree = 200, scale_factor = 1.9, text_offset = 0.
                                0))
     # change text
     image_list = ['bar', 'oil', 'pressure', 'sf6gas', 'temperature']
-    global image_name
-    image_name = np.random.choice(image_list)
+    global gauge_type
+    gauge_type = np.random.choice(image_list)
     if inverted_color:
-        new_image = f'{project_root}/dial_texture/inverted_biaopan_text_{image_name}.png'
+        new_image = f'{project_root}/dial_texture/inverted_biaopan_text_{gauge_type}.png'
     else:
-        new_image = f'{project_root}/dial_texture/biaopan_text_{image_name}.png'
+        new_image = f'{project_root}/dial_texture/biaopan_text_{gauge_type}.png'
     biaopan_image = bpy.data.materials['biaopan_wenzi'].node_tree.nodes['biaopan_image']
     biaopan_image.image = bpy.data.images.load(new_image)
     font_root = f'{project_root}/font_files'
@@ -584,7 +584,7 @@ def get_ann_bbox(width,height):
 
 def get_ann_seg(width,height):
     mark_mask_dict = dict(type='ScaleMark',mask=get_all_cube_seg_points(width,height))
-    pointer_mask_dict = dict(type='pointer',mask=get_object_mask(pointer_name,width,height))
+    pointer_mask_dict = dict(type='Pointer',mask=get_object_mask(pointer_name,width,height))
     
     ann_list = [mark_mask_dict,pointer_mask_dict]
     return ann_list
@@ -649,11 +649,11 @@ def get_ann_seg_mask(height, width, save_folder, seed):
     
 
 def get_ann_keypoints(width,height):
-    circle_keypoints_dict = dict(type='circle', all_kp=long_scale_mark_kp)
+    circle_keypoints_dict = dict(type='ScaleMark', all_kp=long_scale_mark_kp)
     origin_z_shift = [0.04,0.05,0.025]
     origin_point = Vector((0.0,0.0,origin_z_shift[int(pointer_name[-1])-1]))
     pointer_origin_point =  world_to_camera(origin_point,width,height)
-    pointer_keypoints_dict = dict(type='pointer',origin_kp=pointer_origin_point, outside_kp=get_pointer_location(pointer_name,width,height))
+    pointer_keypoints_dict = dict(type='Pointer',origin_kp=pointer_origin_point, outside_kp=get_pointer_location(pointer_name,width,height))
     keypoint_list = [circle_keypoints_dict,pointer_keypoints_dict]
     return keypoint_list
 
@@ -722,13 +722,13 @@ def rotate_environment_texture(rotation_angle_degrees, axis='X'):
 
 def output_json(long_interval_degree,long_interval_value,long_num,
                 pointer_rotate_degree,start_value,small_interval,text_interval,seed,
-                width,height, point_set,
-                save_folder,save_name,scene_number=-1):
-    num_keduxian_before = pointer_rotate_degree // long_interval_degree
-    min_keduxian = num_keduxian_before*long_interval_value + start_value
-    closest_keduxian = min_keduxian
-    if (num_keduxian_before*long_interval_degree+long_interval_degree/2)<pointer_rotate_degree:
-        closest_keduxian += long_interval_value
+                width,height,
+                save_folder,save_name,scene_name=None):
+    num_scalemark_before = int(pointer_rotate_degree // long_interval_degree) + 1
+    min_scalemark = (num_scalemark_before-1)*long_interval_value + start_value
+    closest_scalemark = min_scalemark
+    if ((num_scalemark_before-1)*long_interval_degree+long_interval_degree/2)<pointer_rotate_degree:
+        closest_scalemark += long_interval_value
     
     ann_meter_bbox = get_meter_bbox(width,height)
     ann_bbox = get_ann_bbox(width,height)
@@ -742,25 +742,24 @@ def output_json(long_interval_degree,long_interval_value,long_num,
     output_info_dict = dict(file_name=save_name,
                             long_interval_degree=long_interval_degree,
                             long_interval_value=long_interval_value,
-                            long_num=long_num,
+                            long_num=long_num+1,
                             pointer_rotate_degree=pointer_rotate_degree,
                             start_value=start_value,
                             small_interval=small_interval,
                             text_interval=text_interval,
-                            num_keduxian_before=num_keduxian_before,
-                            min_keduxian=min_keduxian,
-                            closest_keduxian=closest_keduxian,
+                            num_scalemark_before=num_scalemark_before,
+                            min_scalemark=min_scalemark,
+                            closest_scalemark=closest_scalemark,
                             seed=seed,
-                            image_name=image_name,
-                            scene_number=scene_number,
+                            gauge_type=gauge_type,
+                            scene_name=scene_name,
                             width=width,
                             height=height,
-                            point_set=point_set,
                             ground_truth=ground_truth_value,
                             homo_matrix=homo_matrix.tolist(),
                             ann_camera_location=ann_camera_location,
-                            meter_bbox_annotations=ann_meter_bbox,
-                            bbox_annotations=ann_bbox,
+                            dial_bbox_annotations=ann_meter_bbox,
+                            text_bbox_annotations=ann_bbox,
                             seg_annotations=ann_seg,
                             keypoints_annotations=ann_keypoints
                             )
@@ -805,7 +804,6 @@ def parameter_generate(save_folder,
                                 use_gpu=use_gpu,
                                 keep_straight=True,
                                 inverted_color=False,
-                                point_set=[],
                                 img_output_format='JPEG',
                                 img_output_path=None)
     if np.random.random() > 0.8: # 80% change camera
@@ -871,7 +869,8 @@ def change_world_environment(hdr_file_path):
     for scene in bpy.data.scenes:
         scene.world = world
     
-    rotate_environment_texture(90, axis='X')
+    rotate_environment_texture(np.random.random()*20+85, axis='X')
+    rotate_environment_texture(np.random.random()*360, axis='Z')
         
 def make_random_sense(scene_root):
     scene_file_list = [i for i in os.listdir(scene_root) if  i.endswith(('hdr','exr')) ]
@@ -884,7 +883,7 @@ def create_folders(workroot,taskname):
     os.makedirs(os.path.join(workroot, taskname),exist_ok=True)
     os.makedirs(os.path.join(workroot, taskname,'annotations'),exist_ok=True)
     os.makedirs(os.path.join(workroot, taskname,'images'),exist_ok=True)
-    os.makedirs(os.path.join(workroot, taskname,'mask_result'),exist_ok=True)
+    os.makedirs(os.path.join(workroot, taskname,'masks'),exist_ok=True)
 
 
 
@@ -929,9 +928,8 @@ for i in range(start_seed, end_seed+1):
 
     sync_gauge(**dial_data_parameter,**dial_model_parameter,project_root=project_root)
     output_json(**dial_data_parameter,
-                seed=seed_num,width=dial_model_parameter['width'],scene_number=scene_file,
+                seed=seed_num,width=dial_model_parameter['width'],scene_name=scene_file,
                 height=dial_model_parameter['height'],
-                point_set=dial_model_parameter['point_set'],
                 save_folder=f"{workroot}/{sub_folder}/annotations",
                 save_name=f"sync_{i}")
     get_ann_seg_mask(height=height, width=width,save_folder=f"{workroot}/{sub_folder}/masks",seed=seed_num)
