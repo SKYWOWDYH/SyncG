@@ -80,3 +80,34 @@ Once everything is configured, you can start the generation process.
   ```
 
 ***
+
+### Appendix 1. Data Card
+
+ A reference table listing all annotation keys, their descriptions, and data types.
+
+
+| **Field Name**            | **Description**                                              | **Data Type**      |
+| ------------------------- | ------------------------------------------------------------ | ------------------ |
+| **file_name**             | **Unique identifier prefix for the image  file.**            | **String**         |
+| **gauge_type**            | **The category or type of the gauge  (e.g., pressure, voltmeter).** | **String**         |
+| **width**                 | **Image width in pixels.**                                   | **Integer**        |
+| **height**                | **Image height in pixels.**                                  | **Integer**        |
+| **ground_truth**          | **The precise ground truth reading value  of the gauge.**    | **Float**          |
+| **long_interval_degree**  | **Angle (in degrees) between adjacent  major scale marks relative to the dial center.** | **Float**          |
+| **long_interval_value**   | **The numerical difference in value  between adjacent major scale marks.** | **Integer**        |
+| **long_num**              | **Total number of major scale marks on  the dial.**          | **Integer**        |
+| **start_value**           | **The initial (minimum) numerical value  of the gauge scale.** | **Integer**        |
+| **small_interval**        | **Number of minor scale subdivisions  between two adjacent major marks.** | **Integer**        |
+| **text_interval**         | **Frequency of label occurrence (number  of major marks per labeled value).** | **Integer**        |
+| **pointer_rotate_degree** | **Deflection angle of the pointer from  its initial position to the current reading.** | **Float**          |
+| **num_scalemark_before**  | **Count of major scale marks preceding  the current pointer position.** | **Integer**        |
+| **min_scalemark**         | **The reading value of the major scale  mark immediately preceding the pointer.** | **Integer**        |
+| **closest_scalemark**     | **The reading value of the major scale  mark spatially closest to the pointer.** | **Integer**        |
+| **ann_camera_location**   | **The spatial coordinates [x, y, z] of  the camera in the 3D scene.** | **List [Float]**   |
+| **homo_matrix**           | **3×3 matrix parameters for image  perspective correction (**homography matrix) | **List [Float]**   |
+| **dial_bbox_annotations** | **Bounding box coordinates [x_min,y_min,x_max,y_max] for the gauge dial.** | **List [Integer]** |
+| **text_bbox_annotations** | **List of objects containing bounding  boxes and values for numerical text labels.** | **List [Dict]**    |
+| **seg_annotations**       | **Segmentation data (masks/polygons) for  scale marks and pointers.** | **List [Dict]**    |
+| **keypoints_annotations** | **Keypoint**  **coordinates for pointer (origin/tip) and scale marks.** | **List [Dict]**  |
+| **scene_name**            | **Filename of the HDRI map used for  background/lighting rendering.** | **String**         |
+| **seed**                  | **Random seed used for synthetic  generation logic.**        | **Integer**        |
